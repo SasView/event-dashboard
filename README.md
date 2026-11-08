@@ -5,11 +5,11 @@ any other time-boxed event. It shows what happened on GitHub during the event: P
 merged, issues opened and closed, commits, reviews, first-time contributors, and the split
 between new work and cleanup of older PRs and issues.
 
-**Live page:** https://sasview.github.io/event-dashboard/
+**Live page:** https://www.sasview.org/event-dashboard/
 
 - Pick an event: `?event=<id>` (or the menu at the top right when there is more than one)
 - Projector view, with large text for a screen in the room: add `?tv=1`, e.g.
-  https://sasview.github.io/event-dashboard/?tv=1
+  https://www.sasview.org/event-dashboard/?tv=1
 
 The page reloads its data every 10 minutes. The data itself is refreshed hourly while an event
 is running.
