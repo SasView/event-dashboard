@@ -40,6 +40,9 @@ jobs:
         env:
           DASHBOARD_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python collector/collect.py
+      - name: Stamp page assets with this build (so browsers fetch the new script and styles)
+        if: steps.gate.outputs.run == 'true'
+        run: sed -i "s/__BUILD__/${GITHUB_SHA::7}/g" site/index.html
       - uses: actions/upload-pages-artifact@v3
         if: steps.gate.outputs.run == 'true'
         with:

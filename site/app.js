@@ -225,5 +225,14 @@
   let resizeTimer;
   addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(render, 150); });
   load().catch((e) => { $('notice').hidden = false; $('notice').textContent = 'Could not load data: ' + e.message; });
-  setInterval(() => load().catch(() => {}), REFRESH_MIN * 60 * 1000);
+  // Reload data every few minutes; if the page itself was rebuilt with new code, reload the whole page
+  const myBuild = (document.querySelector('script[src^="app.js"]').getAttribute('src').split('v=')[1] || '');
+  setInterval(async () => {
+    try {
+      const html = await (await fetch('index.html?t=' + Date.now(), { cache: 'no-store' })).text();
+      const live = (html.match(/app\.js\?v=([\w-]+)/) || [])[1];
+      if (myBuild && live && live !== myBuild && live !== '__BUILD__') { location.reload(); return; }
+    } catch (e) { /* offline: keep showing what we have */ }
+    load().catch(() => {});
+  }, REFRESH_MIN * 60 * 1000);
 })();
