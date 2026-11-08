@@ -16,12 +16,16 @@ from zoneinfo import ZoneInfo
 
 import requests
 
+import extras
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EVENTS_DIR = os.path.join(ROOT, "events")
 ARCHIVE_DIR = os.path.join(ROOT, "archive")
 SITE_DATA = os.path.join(ROOT, "site", "data")
+WORKDIR = os.path.join(ROOT, ".cache")
 AI_RE = re.compile(r"co-authored-by:.*(claude|copilot|cursor|codex|gemini|anthropic|openai)", re.I)
-DATASETS = ["meta", "summary", "daily", "by_repo", "pr_closures", "review_queue", "first_timers"]
+DATASETS = ["meta", "summary", "daily", "by_repo", "pr_closures", "review_queue", "first_timers",
+            "backlog", "ci", "code", "releases"]
 
 S = requests.Session()
 S.headers.update({"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"})
@@ -49,6 +53,7 @@ def load_events():
         ev.setdefault("subtitle", "")
         ev.setdefault("link", "")
         ev.setdefault("baseline_weeks", 8)
+        ev.setdefault("repo", {})  # per-repo settings: [repo."Owner/name"] source = [...], branches = [...]
         events.append(ev)
     return events
 
@@ -108,13 +113,13 @@ def collect(ev):
     def day(t):
         return t.astimezone(TZ).date().isoformat()
 
-    prs_all, issues_win, commits_main = {}, {}, {}
+    prs_all, issues_win, commits_main, infos = {}, {}, {}, {}
     for repo in REPOS:
         prs_all[repo] = paged(f"/repos/{repo}/pulls", {"state": "all", "sort": "created", "direction": "desc"})
         issues_win[repo] = [i for i in paged(f"/repos/{repo}/issues",
                                              {"state": "all", "since": START.astimezone(timezone.utc).isoformat()})
                             if "pull_request" not in i]
-        info = get(f"/repos/{repo}").json()
+        info = infos[repo] = get(f"/repos/{repo}").json()
         commits_main[repo] = paged(f"/repos/{repo}/commits",
                                    {"sha": info["default_branch"],
                                     "since": (START - timedelta(days=2)).astimezone(timezone.utc).isoformat(),
@@ -131,8 +136,12 @@ def collect(ev):
 
     def detail(rp):
         repo, p = rp
+        size = None
+        if p["state"] == "open":  # size of open PRs, for the review queue
+            full = get(f"/repos/{repo}/pulls/{p['number']}").json()
+            size = (full.get("additions") or 0) + (full.get("deletions") or 0)
         return (repo, p, paged(f"/repos/{repo}/pulls/{p['number']}/commits"),
-                paged(f"/repos/{repo}/pulls/{p['number']}/reviews"))
+                paged(f"/repos/{repo}/pulls/{p['number']}/reviews"), size)
 
     with ThreadPoolExecutor(8) as ex:
         details = list(ex.map(detail, camp_prs))
@@ -154,7 +163,7 @@ def collect(ev):
         closers = list(ex.map(closer, [(r, i) for r in REPOS for i in issues_win[r] if in_win(ts(i["closed_at"]))]))
 
     pr_rows, commit_set, people, review_events = [], {}, set(), []
-    for repo, p, commits, reviews in details:
+    for repo, p, commits, reviews, size in details:
         c, cl, m = ts(p["created_at"]), ts(p["closed_at"]), ts(p["merged_at"])
         new = in_win(c)
         ev_commits = [x for x in commits if in_win(ts(x["commit"]["author"]["date"]))
@@ -183,7 +192,7 @@ def collect(ev):
         pr_rows.append(dict(repo=repo, number=p["number"], title=p["title"], author=p["user"]["login"],
                             created=c, closed=cl, merged=m, new=new, draft=p.get("draft", False),
                             state=p["state"], category=cat, ev_commits=len(ev_commits), ai=ai,
-                            first_review=first_rev))
+                            first_review=first_rev, size=size))
 
     for repo in REPOS:
         for x in commits_main[repo]:
@@ -277,8 +286,34 @@ def collect(ev):
                                 url=f"https://github.com/{x['repo']}/pull/{x['number']}",
                                 title=x["title"], author=x["author"],
                                 opened=x["created"].astimezone(TZ).strftime("%a %d %b %H:%M"),
-                                hours_waiting=round((now - x["created"]).total_seconds() / 3600, 1))
+                                hours_waiting=round((now - x["created"]).total_seconds() / 3600, 1),
+                                lines=x["size"])
                            for x in awaiting], key=lambda r: -r["hours_waiting"])
+
+    # ---- before/after and status (extras.py)
+    def api_get(url, params=None):
+        r = S.get("https://api.github.com" + url, params=params, timeout=60)
+        if r.status_code not in (200, 404):
+            r.raise_for_status()
+        return r
+    backlog, ci, code, releases = [], [], [], []
+    for repo in REPOS:
+        default = infos[repo]["default_branch"]
+        backlog.append(extras.backlog(repo, infos[repo], prs_all[repo], issues_win[repo], START, win_end))
+        branches = extras.tracked_branches(api_get, paged, repo, default, ev)
+        ci += extras.ci_status(api_get, repo, branches)
+        releases.append(extras.unreleased(api_get, repo, default, START, END))
+        sources = ev["repo"].get(repo, {}).get("source", [])
+        print(f"  measuring tests/docstrings: {repo} {branches}", flush=True)
+        code += extras.code_metrics(repo, branches, sources, START, win_end, WORKDIR)
+    summary.update(
+        median_hours_to_merge=extras.median_hours_to_merge(pr_rows, in_win),
+        open_issues_start=sum(b["issues_start"] for b in backlog), open_issues_end=sum(b["issues_end"] for b in backlog),
+        open_prs_start=sum(b["prs_start"] for b in backlog), open_prs_end=sum(b["prs_end"] for b in backlog),
+        ci_workflows=len(ci), ci_failing=sum(1 for c in ci if c["state"] in ("failure", "timed_out", "startup_failure")),
+        tests_added=sum((c["tests_end"] or 0) - (c["tests_start"] or 0) for c in code
+                        if c["tests_end"] is not None and c["tests_start"] is not None),
+    )
 
     meta = dict(id=ev["id"], title=ev["title"], subtitle=ev["subtitle"], link=ev["link"],
                 start=ev["_days"][0].isoformat(), end=ev["_days"][-1].isoformat(), timezone=ev["timezone"],
@@ -287,7 +322,8 @@ def collect(ev):
                 generated_local=now.astimezone(TZ).strftime("%a %d %b %H:%M"),
                 final=now >= END)
     return dict(meta=meta, summary=summary, daily=daily, by_repo=by_repo, pr_closures=pr_closures,
-                review_queue=review_queue, first_timers=first_timers)
+                review_queue=review_queue, first_timers=first_timers,
+                backlog=backlog, ci=ci, code=code, releases=releases)
 
 
 def write(dirpath, data):

@@ -46,6 +46,16 @@ isn't cluttered with hourly data commits.
    | `timezone` | yes | Days are counted in this zone, e.g. `"Europe/Prague"`, `"America/New_York"`, `"UTC"` for virtual events. |
    | `repos` | yes | List of repos, e.g. `["SasView/sasview", "SasView/sasmodels", "SasView/sasdata"]`. |
    | `baseline_weeks` | no | Weeks before the event used for "typical week" figures (default 8). |
+   | `exclude_branches` | no | Regex of protected branches never measured (default `^release`). |
+   | `[repo."Owner/name"]` | no | Per-repo settings: `source = [...]` folders checked for docstring coverage; `branches = [...]` to choose the measured branches yourself. |
+
+   Example per-repo block:
+
+   ```toml
+   [repo."SasView/sasview"]
+   source = ["src/sas"]
+   # branches = ["refactor_24"]   # optional; the default branch is always included
+   ```
 
 3. Commit to `main`. The push triggers a build, and from the day before the event starts the page
    updates hourly by itself. Until the event starts, it isn't listed on the page.
@@ -75,6 +85,19 @@ from the archive and is never fetched again, which keeps hourly runs fast as eve
   the event.
 - **AI-assisted PRs**: PRs with a `Co-authored-by:` trailer naming Claude, Copilot, Cursor, Codex
   or Gemini in a commit or the description.
+- **Backlog**: open issues and PRs at 00:00 on the first day compared with now (or the end).
+- **Tracked branches**: the default branch, plus protected branches that are not release branches
+  (`exclude_branches`) and had commits during the event, e.g. `refactor_24`. Protection is a good
+  sign of a shared development or release branch.
+- **Tests and docstrings**: test functions (`def test…` in any `.py` file) and
+  [interrogate](https://interrogate.readthedocs.io) docstring coverage of the `source` folders,
+  on each tracked branch at the last commit before the event and the latest commit. Changes include
+  work written earlier but merged during the event. sasmodels' per-model test tables are not counted.
+- **CI**: latest run of each of the repo's own workflows on each tracked branch (PR runs and GitHub's
+  Dependabot/Copilot jobs are left out).
+- **Since the last release**: commits on the default branch not in the latest GitHub release.
+- **Review queue**: also shows lines changed per PR; the page gives median hours to first review
+  and to merge for PRs opened during the event.
 - **Not counted**: discussions, wiki edits and PR comments that are not reviews.
 
 The full definitions are also at the bottom of the page.
@@ -82,7 +105,7 @@ The full definitions are also at the bottom of the page.
 ## Running locally
 
 ```bash
-pip install requests
+pip install -r requirements.txt
 export DASHBOARD_TOKEN=<a GitHub token>   # optional, raises the API rate limit
 python collector/collect.py               # writes site/data/
 python -m http.server -d site 8000        # then open http://localhost:8000
@@ -95,7 +118,7 @@ Python 3.11 or newer is needed (for `tomllib`).
 The page is plain HTML, CSS and JavaScript with [d3](https://d3js.org) loaded from a CDN. There
 is no build step: edit `site/index.html`, `site/app.js` or `site/style.css`, run the collector
 once locally to get data, and preview with `python -m http.server`. New figures are added in
-`collector/collect.py` (each JSON file in `site/data/<id>/` is one dataset) and drawn in
+`collector/collect.py` (activity in the window) or `collector/extras.py` (before/after and status) (each JSON file in `site/data/<id>/` is one dataset) and drawn in
 `site/app.js`.
 
 ## Repository settings this needs
@@ -107,3 +130,8 @@ once locally to get data, and preview with `python -m http.server`. New figures 
 Note that GitHub turns off scheduled workflows in a repo that has had no activity for 60 days,
 which is likely between events. If the hourly refresh doesn't start for a new event, open
 **Actions** → **Build and publish dashboard** and click **Enable workflow**.
+
+## Credits
+
+The before/after, CI, PR-size and release ideas follow Piotr Rozyczko's
+[EasyScience org-health board](https://github.com/easyscience/org-health).

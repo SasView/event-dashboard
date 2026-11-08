@@ -64,3 +64,7 @@ body.tv .muted { font-size: 15px; }
 body.tv table { font-size: 16px; }
 body.tv .defs { display: none; }
 body.tv .tablebox { max-height: none; }
+.ci-line { font-size: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.ok { background: var(--s3); } .dot.bad { background: var(--bad); }
+body.tv .ci-line { font-size: 18px; }

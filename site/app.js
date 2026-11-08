@@ -38,8 +38,9 @@
     }
     picker.value = ev.id;
     picker.onchange = () => { const p = new URLSearchParams(location.search); p.set('event', picker.value); location.search = p.toString(); };
-    const names = ['meta', 'summary', 'daily', 'by_repo', 'pr_closures', 'review_queue', 'first_timers'];
-    const data = Object.fromEntries(await Promise.all(names.map(async (n) => [n, await getJSON(`data/${ev.id}/${n}.json`)])));
+    const names = ['meta', 'summary', 'daily', 'by_repo', 'pr_closures', 'review_queue', 'first_timers', 'backlog', 'ci', 'code', 'releases'];
+    const optional = new Set(['backlog', 'ci', 'code', 'releases']);  // absent in older archives
+    const data = Object.fromEntries(await Promise.all(names.map(async (n) => [n, optional.has(n) ? await getJSON(`data/${ev.id}/${n}.json`).catch(() => []) : await getJSON(`data/${ev.id}/${n}.json`)])));
     state = data;
     render();
   }
@@ -60,14 +61,30 @@
     const b = (v) => { const el = document.createElement('b'); el.textContent = num(v); return el; };
     lede.append(meta.final ? 'Over the event, ' : 'So far, ', b(s.contributors), ' people opened ', b(s.prs_opened),
       ' pull requests and merged ', b(s.prs_merged), ', about ', b(s.prs_merged_per_day), ' merges a day against a typical ',
-      b(s.baseline_prs_merged_per_week), ' a week. ', b(s.awaiting_review), ' event PRs are waiting for a first review.');
+      b(s.baseline_prs_merged_per_week), ' a week.');
+    if (s.open_issues_start != null) lede.append(' Open issues ', s.open_issues_end <= s.open_issues_start ? 'are down' : 'are up',
+      ' from ', b(s.open_issues_start), ' to ', b(s.open_issues_end), '.');
+    lede.append(' ', b(s.awaiting_review), ' event PRs are waiting for a first review.');
+
+    const ciLine = $('ci-line');
+    ciLine.replaceChildren();
+    if (state.ci.length) {
+      const failing = state.ci.filter((c) => ['failure', 'timed_out', 'startup_failure'].includes(c.state));
+      const dot = document.createElement('span'); dot.className = 'dot ' + (failing.length ? 'bad' : 'ok');
+      ciLine.append(dot);
+      if (!failing.length) ciLine.append(`CI: all ${state.ci.length} workflows passing on ${[...new Set(state.ci.map((c) => c.repo + ' ' + c.branch))].join(', ')}`);
+      else {
+        ciLine.append(`CI: ${failing.length} failing: `);
+        failing.forEach((c, i) => { const a = document.createElement('a'); a.href = c.url; a.textContent = `${c.repo} ${c.branch} · ${c.workflow}`; ciLine.append(i ? ', ' : '', a); });
+      }
+    }
     $('freshness').textContent = `${meta.final ? 'Final numbers' : 'Data as of ' + meta.generated_local + ' (' + meta.timezone + ')'} · ` +
       (meta.final ? 'event ended' : `updated hourly while the event runs; this page reloads every ${REFRESH_MIN} minutes`);
 
     const tiles = [
       ['PRs opened', s.prs_opened, `typical week: ${num(s.baseline_prs_opened_per_week)}`],
       ['PRs merged', s.prs_merged, `typical week: ${num(s.baseline_prs_merged_per_week)}`],
-      ['Issues closed', s.issues_closed, `${num(s.issues_opened)} opened`],
+      ['Issues closed', s.issues_closed, s.open_issues_start != null ? `open: ${num(s.open_issues_start)} → ${num(s.open_issues_end)}` : `${num(s.issues_opened)} opened`],
       ['Commits', s.commits, 'incl. unmerged PR branches'],
       ['Reviews given', s.reviews, 'on event PRs'],
       ['First-time contributors', s.first_timers, 'first ever PR to these repos'],
@@ -84,6 +101,7 @@
     $('by-hand').textContent = num(s.issues_closed_by_hand);
     $('ai').textContent = num(s.ai_assisted_prs);
     $('ttfr').textContent = num(s.median_hours_to_first_review);
+    $('ttm').textContent = num(s.median_hours_to_merge);
     const split = $('split'); split.replaceChildren();
     const tot = (s.issues_closed_by_pr || 0) + (s.issues_closed_by_hand || 0);
     if (tot) [[s.issues_closed_by_pr, css('--s1')], [s.issues_closed_by_hand, css('--mutedbar')]].forEach(([v, c]) => {
@@ -92,7 +110,20 @@
 
     drawCumulative();
     drawClosures();
-    table('queue', state.review_queue, [['pr', 'url'], ['title'], ['author'], ['opened'], ['hours_waiting', null, 'n']], 'Nothing waiting for review.');
+    table('queue', state.review_queue, [['pr', 'url'], ['title'], ['author'], ['opened'], ['lines', null, 'n'], ['hours_waiting', null, 'n']], 'Nothing waiting for review.');
+    const delta = (a, b, f = fmt) => (a == null || b == null ? '' : (b - a > 0 ? '+' : b - a < 0 ? '−' : '±') + f(Math.abs(b - a)));
+    const pct = (v) => (v == null ? '—' : d3.format('.1f')(v) + '%');
+    const arrow = (a, b, f = num) => `${f(a)} → ${f(b)}`;
+    table('backlog', state.backlog.map((r) => ({ repo: r.repo, issues: arrow(r.issues_start, r.issues_end), di: delta(r.issues_start, r.issues_end),
+      prs: arrow(r.prs_start, r.prs_end), dp: delta(r.prs_start, r.prs_end) })), [['repo'], ['issues', null, 'n'], ['di', null, 'n'], ['prs', null, 'n'], ['dp', null, 'n']], '');
+    table('code', state.code.map((r) => ({ repo: r.repo, branch: r.branch, tests: arrow(r.tests_start, r.tests_end), dt: delta(r.tests_start, r.tests_end),
+      doc: `${pct(r.doc_start)} → ${pct(r.doc_end)}`, dd: delta(r.doc_start, r.doc_end, (v) => d3.format('.1f')(v) + ' pts') })),
+      [['repo'], ['branch'], ['tests', null, 'n'], ['dt', null, 'n'], ['doc', null, 'n'], ['dd', null, 'n']], '');
+    const stateLabel = { success: '✓ passing', failure: '✗ failing', timed_out: '✗ timed out', startup_failure: '✗ failed to start', cancelled: 'cancelled', in_progress: 'running…', queued: 'queued' };
+    table('ci', state.ci.map((r) => ({ ...r, status: stateLabel[r.state] || r.state, when: d3.utcFormat('%a %-d %b')(new Date(r.at)) })),
+      [['repo'], ['branch'], ['workflow', 'url'], ['status'], ['when']], 'No workflow runs found.');
+    table('releases', state.releases.map((r) => ({ ...r, rel: r.release ? `${r.release} (${r.release_date})` : 'none' })),
+      [['repo'], ['rel'], ['commits_since', null, 'n'], ['during_event', null, 'n']], '');
     table('firsts', state.first_timers, [['contributor'], ['pr', 'url'], ['title'], ['status']], 'None yet.');
     table('repos', state.by_repo, [['repo'], ['prs_opened', null, 'n'], ['prs_merged', null, 'n'], ['issues_opened', null, 'n'], ['issues_closed', null, 'n'], ['commits', null, 'n'], ['reviews', null, 'n']], '');
   }

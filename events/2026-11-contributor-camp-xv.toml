@@ -13,3 +13,14 @@ repos = ["SasView/sasview", "SasView/sasmodels", "SasView/sasdata"]
 
 # Optional
 baseline_weeks = 8                    # "typical week" = average over this many weeks before start
+
+# Per-repo settings (optional). source = folders checked for docstring coverage.
+# branches = [...] would override the automatic choice of branches to measure.
+[repo."SasView/sasview"]
+source = ["src/sas"]
+
+[repo."SasView/sasmodels"]
+source = ["sasmodels"]
+
+[repo."SasView/sasdata"]
+source = ["sasdata"]

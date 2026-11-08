@@ -20,6 +20,7 @@
       <p id="subtitle" class="muted"></p>
       <p id="lede" class="lede"></p>
       <p id="freshness" class="muted"></p>
+      <p id="ci-line" class="ci-line"></p>
     </header>
 
     <p id="notice" class="notice" hidden></p>
@@ -50,11 +51,30 @@
       </div>
     </section>
 
+    <section class="grid">
+      <div class="card">
+        <h2>Backlog: start of event → now</h2>
+        <p class="muted">Open issues and pull requests in each repo when the event started, and now.</p>
+        <div class="tablebox"><table id="backlog">
+          <thead><tr><th>Repo</th><th class="n">Open issues</th><th class="n">Change</th><th class="n">Open PRs</th><th class="n">Change</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <h2>Tests and docstrings: start of event → now</h2>
+        <p class="muted">Measured on each repo's main branch and its active development branches. Includes work written earlier and merged during the event.</p>
+        <div class="tablebox"><table id="code">
+          <thead><tr><th>Repo</th><th>Branch</th><th class="n">Test functions</th><th class="n">Change</th><th class="n">Docstring coverage</th><th class="n">Change</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    </section>
+
     <section class="card">
       <h2>Review queue</h2>
-      <p class="muted">PRs opened or worked on during the event, not drafts, with no review yet. Median time to first review for PRs opened during the event: <span id="ttfr">—</span> hours.</p>
+      <p class="muted">PRs opened or worked on during the event, not drafts, with no review yet. For PRs opened during the event, the median time to first review is <span id="ttfr">—</span> hours and to merge <span id="ttm">—</span> hours.</p>
       <div class="tablebox"><table id="queue">
-        <thead><tr><th>PR</th><th>Title</th><th>Author</th><th>Opened</th><th class="n">Hours waiting</th></tr></thead>
+        <thead><tr><th>PR</th><th>Title</th><th>Author</th><th>Opened</th><th class="n">Lines changed</th><th class="n">Hours waiting</th></tr></thead>
         <tbody></tbody>
       </table></div>
     </section>
@@ -78,6 +98,25 @@
       </div>
     </section>
 
+    <section class="grid">
+      <div class="card">
+        <h2>CI on tracked branches</h2>
+        <p class="muted">Latest run of each workflow on the branches measured above (not PR runs).</p>
+        <div class="tablebox"><table id="ci">
+          <thead><tr><th>Repo</th><th>Branch</th><th>Workflow</th><th>Status</th><th>Last run</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <h2>Since the last release</h2>
+        <p class="muted">Commits on each repo's main branch that are not yet in a release.</p>
+        <div class="tablebox"><table id="releases">
+          <thead><tr><th>Repo</th><th>Latest release</th><th class="n">Commits since</th><th class="n">Of which during event</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    </section>
+
     <details class="defs" id="definitions">
       <summary>How these numbers are counted</summary>
       <dl>
@@ -88,6 +127,10 @@
         <dt>Older PR closed (cleanup)</dt><dd>PR opened before the event and closed without merging.</dd>
         <dt>Commits</dt><dd>Non-merge commits authored during the event, on the default branch or on any PR branch active during the event, each counted once.</dd>
         <dt>Issue closed by a PR</dt><dd>The closing event names a commit, or a merged PR referencing the issue landed within ten minutes of it closing.</dd>
+        <dt>Backlog</dt><dd>Open issues and PRs at 00:00 on the first day, compared with now (or the end of the event). An issue reopened after being closed counts by its latest close.</dd>
+        <dt>Tracked branches</dt><dd>The default branch, plus protected branches that are not release branches and had commits during the event (for example refactor_24). An event file can list branches explicitly.</dd>
+        <dt>Test functions</dt><dd>Python functions named test… anywhere in the repo, on the last commit before the event and the latest commit. sasmodels' per-model test tables are not counted.</dd>
+        <dt>Docstring coverage</dt><dd>Measured with interrogate on each repo's source folder (set in the event file), using the repo's own interrogate settings where it has them.</dd>
         <dt>Typical week</dt><dd>Average over the weeks before the event (set per event).</dd>
         <dt>Contributors</dt><dd>Anyone who opened a PR or issue, authored a commit or submitted a review in the window.</dd>
         <dt>Not counted</dt><dd>Discussions, breakouts, wiki edits and PR comments that are not reviews.</dd>
