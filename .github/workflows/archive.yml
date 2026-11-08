@@ -1,0 +1,43 @@
+name: Archive an event
+
+# Run this by hand once an event is over. It saves the event's final numbers in archive/<id>/,
+# so the dashboard keeps showing them without fetching from GitHub again.
+
+on:
+  workflow_dispatch:
+    inputs:
+      event_id:
+        description: "Event id (the id = line in its events/*.toml file)"
+        required: true
+
+permissions:
+  contents: write
+  actions: write     # to start a fresh dashboard build afterwards
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Collect final numbers
+        env:
+          DASHBOARD_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_ID: ${{ inputs.event_id }}
+        run: python collector/collect.py --archive "$EVENT_ID"
+      - name: Commit archive
+        env:
+          EVENT_ID: ${{ inputs.event_id }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "archive/$EVENT_ID"
+          git commit -m "Archive final numbers for $EVENT_ID"
+          git push
+      - name: Rebuild the dashboard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run dashboard.yml --ref "${{ github.ref_name }}"

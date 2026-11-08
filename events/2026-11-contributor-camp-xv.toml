@@ -1,0 +1,15 @@
+# One file per event. See README.md for every option.
+
+id = "contributor-camp-xv"            # used in the page URL: ?event=contributor-camp-xv
+title = "SasView Contributor Camp XV"
+subtitle = "Charles University, Prague · remote contributions count too"
+link = "https://github.com/SasView/sasview/wiki/ContributorCampXV"
+
+start = "2026-11-03"                  # first day (inclusive)
+end = "2026-11-09"                    # last day (inclusive)
+timezone = "Europe/Prague"            # days are counted in this time zone
+
+repos = ["SasView/sasview", "SasView/sasmodels", "SasView/sasdata"]
+
+# Optional
+baseline_weeks = 8                    # "typical week" = average over this many weeks before start

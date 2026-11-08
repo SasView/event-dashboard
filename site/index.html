@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SasView event dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/d3.min.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <header class="head">
+      <div class="head-row">
+        <h1 id="title">SasView event dashboard</h1>
+        <div class="controls">
+          <select id="event-picker" aria-label="Event" hidden></select>
+          <a id="tv-toggle" href="#">Projector view</a>
+        </div>
+      </div>
+      <p id="subtitle" class="muted"></p>
+      <p id="lede" class="lede"></p>
+      <p id="freshness" class="muted"></p>
+    </header>
+
+    <p id="notice" class="notice" hidden></p>
+
+    <section class="tiles" id="tiles"></section>
+
+    <section class="card">
+      <h2>Progress through the event</h2>
+      <p class="muted">Running totals by day.</p>
+      <div class="chart" id="cumulative"></div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Where the closed PRs came from</h2>
+        <p class="muted">Every PR merged or closed during the event, by when it was opened and whether it got new commits during the event.</p>
+        <div class="chart short" id="closures"></div>
+      </div>
+      <div class="card">
+        <h2>How issues were closed</h2>
+        <p class="muted">Closed by a merged PR or commit, versus closed by hand (triage, duplicates, already fixed).</p>
+        <div class="pair">
+          <div><span class="big" id="by-pr">—</span><span class="muted">by a PR</span></div>
+          <div><span class="big" id="by-hand">—</span><span class="muted">by hand</span></div>
+        </div>
+        <div class="split" id="split"></div>
+        <p class="muted"><span id="ai">—</span> event PRs carry an AI co-author trailer (Claude, Copilot and similar).</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Review queue</h2>
+      <p class="muted">PRs opened or worked on during the event, not drafts, with no review yet. Median time to first review for PRs opened during the event: <span id="ttfr">—</span> hours.</p>
+      <div class="tablebox"><table id="queue">
+        <thead><tr><th>PR</th><th>Title</th><th>Author</th><th>Opened</th><th class="n">Hours waiting</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>First contributions</h2>
+        <p class="muted">People whose first-ever PR to these repos was opened during the event.</p>
+        <div class="tablebox"><table id="firsts">
+          <thead><tr><th>Contributor</th><th>PR</th><th>Title</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <h2>By repository</h2>
+        <p class="muted">Event activity per repo.</p>
+        <div class="tablebox"><table id="repos">
+          <thead><tr><th>Repo</th><th class="n">PRs opened</th><th class="n">Merged</th><th class="n">Issues opened</th><th class="n">Issues closed</th><th class="n">Commits</th><th class="n">Reviews</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <details class="defs" id="definitions">
+      <summary>How these numbers are counted</summary>
+      <dl>
+        <dt>Event window</dt><dd>From 00:00 on the first day to 24:00 on the last day, in the event's time zone. All activity in the window counts, remote contributions included; bot accounts (Dependabot, pre-commit) are left out.</dd>
+        <dt>New work, merged</dt><dd>PR opened during the event and merged.</dd>
+        <dt>Older PR reworked, merged</dt><dd>PR opened before the event that got new commits during it and was merged.</dd>
+        <dt>Backlog PR merged as-is</dt><dd>PR opened before the event, merged after review with no new commits.</dd>
+        <dt>Older PR closed (cleanup)</dt><dd>PR opened before the event and closed without merging.</dd>
+        <dt>Commits</dt><dd>Non-merge commits authored during the event, on the default branch or on any PR branch active during the event, each counted once.</dd>
+        <dt>Issue closed by a PR</dt><dd>The closing event names a commit, or a merged PR referencing the issue landed within ten minutes of it closing.</dd>
+        <dt>Typical week</dt><dd>Average over the weeks before the event (set per event).</dd>
+        <dt>Contributors</dt><dd>Anyone who opened a PR or issue, authored a commit or submitted a review in the window.</dd>
+        <dt>Not counted</dt><dd>Discussions, breakouts, wiki edits and PR comments that are not reviews.</dd>
+      </dl>
+      <p>Source and instructions for adding an event: <a href="https://github.com/SasView/event-dashboard">SasView/event-dashboard</a>.</p>
+    </details>
+  </main>
+  <div class="tip" id="tip" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
