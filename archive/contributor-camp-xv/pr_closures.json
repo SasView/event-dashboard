@@ -1,0 +1,22 @@
+[
+ {
+  "category": "New work, merged",
+  "prs": 31
+ },
+ {
+  "category": "Older PR reworked, merged",
+  "prs": 2
+ },
+ {
+  "category": "Backlog PR merged as-is",
+  "prs": 5
+ },
+ {
+  "category": "Older PR closed (cleanup)",
+  "prs": 1
+ },
+ {
+  "category": "New, closed unmerged",
+  "prs": 3
+ }
+]

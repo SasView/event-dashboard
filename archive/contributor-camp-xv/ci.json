@@ -1,0 +1,65 @@
+[
+ {
+  "key": "sasview:main:Nightly Build",
+  "repo": "sasview",
+  "branch": "main",
+  "workflow": "Nightly Build",
+  "state": "success",
+  "url": "https://github.com/SasView/sasview/actions/runs/42641924553",
+  "at": "2026-11-09T16:26:16Z"
+ },
+ {
+  "key": "sasview:main:CI",
+  "repo": "sasview",
+  "branch": "main",
+  "workflow": "CI",
+  "state": "success",
+  "url": "https://github.com/SasView/sasview/actions/runs/42641924238",
+  "at": "2026-11-09T16:12:30Z"
+ },
+ {
+  "key": "sasview:refactor_24:CI",
+  "repo": "sasview",
+  "branch": "refactor_24",
+  "workflow": "CI",
+  "state": "success",
+  "url": "https://github.com/SasView/sasview/actions/runs/42689134203",
+  "at": "2026-11-09T20:11:07Z"
+ },
+ {
+  "key": "sasmodels:master:Test",
+  "repo": "sasmodels",
+  "branch": "master",
+  "workflow": "Test",
+  "state": "success",
+  "url": "https://github.com/SasView/sasmodels/actions/runs/42628693803",
+  "at": "2026-11-09T13:51:40Z"
+ },
+ {
+  "key": "sasdata:master:Tests",
+  "repo": "sasdata",
+  "branch": "master",
+  "workflow": "Tests",
+  "state": "success",
+  "url": "https://github.com/SasView/sasdata/actions/runs/41640161523",
+  "at": "2026-11-03T13:01:18Z"
+ },
+ {
+  "key": "sasdata:refactor_24:Tests",
+  "repo": "sasdata",
+  "branch": "refactor_24",
+  "workflow": "Tests",
+  "state": "success",
+  "url": "https://github.com/SasView/sasdata/actions/runs/42677094358",
+  "at": "2026-11-09T18:49:58Z"
+ },
+ {
+  "key": "sasdata:refactor_24:Tests",
+  "repo": "sasdata",
+  "branch": "refactor_24",
+  "workflow": "Tests",
+  "state": "success",
+  "url": "https://github.com/SasView/sasdata/actions/runs/42677094340",
+  "at": "2026-11-09T18:50:21Z"
+ }
+]

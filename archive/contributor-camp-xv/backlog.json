@@ -1,0 +1,23 @@
+[
+ {
+  "repo": "sasview",
+  "issues_start": 513,
+  "issues_end": 459,
+  "prs_start": 22,
+  "prs_end": 31
+ },
+ {
+  "repo": "sasmodels",
+  "issues_start": 223,
+  "issues_end": 220,
+  "prs_start": 9,
+  "prs_end": 17
+ },
+ {
+  "repo": "sasdata",
+  "issues_start": 68,
+  "issues_end": 59,
+  "prs_start": 4,
+  "prs_end": 4
+ }
+]

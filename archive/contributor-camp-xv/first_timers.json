@@ -1,0 +1,38 @@
+[
+ {
+  "contributor": "ursulap",
+  "repo": "sasmodels",
+  "pr": "sasmodels#782",
+  "url": "https://github.com/SasView/sasmodels/pull/782",
+  "title": "Add multi_shell_vesicle model",
+  "opened": "2026-11-04",
+  "status": "open"
+ },
+ {
+  "contributor": "ps1401",
+  "repo": "sasview",
+  "pr": "sasview#4183",
+  "url": "https://github.com/SasView/sasview/pull/4183",
+  "title": "Sets default branch of SasData to \"refactor_24\" in CI",
+  "opened": "2026-11-05",
+  "status": "merged"
+ },
+ {
+  "contributor": "sfernandezbordin",
+  "repo": "sasmodels",
+  "pr": "sasmodels#785",
+  "url": "https://github.com/SasView/sasmodels/pull/785",
+  "title": "Update unified power Rg documentation",
+  "opened": "2026-11-06",
+  "status": "merged"
+ },
+ {
+  "contributor": "turneradam",
+  "repo": "sasmodels",
+  "pr": "sasmodels#791",
+  "url": "https://github.com/SasView/sasmodels/pull/791",
+  "title": "Apply broad_peak shape_exp to the peak term only",
+  "opened": "2026-11-08",
+  "status": "open"
+ }
+]

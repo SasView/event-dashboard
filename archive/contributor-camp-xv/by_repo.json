@@ -1,0 +1,29 @@
+[
+ {
+  "repo": "sasview",
+  "prs_opened": 36,
+  "prs_merged": 25,
+  "issues_opened": 22,
+  "issues_closed": 76,
+  "commits": 109,
+  "reviews": 51
+ },
+ {
+  "repo": "sasmodels",
+  "prs_opened": 13,
+  "prs_merged": 4,
+  "issues_opened": 16,
+  "issues_closed": 19,
+  "commits": 54,
+  "reviews": 14
+ },
+ {
+  "repo": "sasdata",
+  "prs_opened": 10,
+  "prs_merged": 9,
+  "issues_opened": 8,
+  "issues_closed": 17,
+  "commits": 72,
+  "reviews": 9
+ }
+]

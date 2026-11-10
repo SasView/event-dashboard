@@ -1,0 +1,26 @@
+{
+ "id": "contributor-camp-xv",
+ "title": "SasView Contributor Camp XV",
+ "subtitle": "Charles University, Prague \u00b7 remote contributions count too",
+ "link": "https://github.com/SasView/sasview/wiki/ContributorCampXV",
+ "start": "2026-11-03",
+ "end": "2026-11-09",
+ "timezone": "Europe/Prague",
+ "days": [
+  "2026-11-03",
+  "2026-11-04",
+  "2026-11-05",
+  "2026-11-06",
+  "2026-11-07",
+  "2026-11-08",
+  "2026-11-09"
+ ],
+ "repos": [
+  "SasView/sasview",
+  "SasView/sasmodels",
+  "SasView/sasdata"
+ ],
+ "generated_at": "2026-11-10T16:53:49+00:00",
+ "generated_local": "Tue 10 Nov 17:53",
+ "final": true
+}

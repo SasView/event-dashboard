@@ -1,0 +1,23 @@
+[
+ {
+  "repo": "sasview",
+  "release": "v6.2.0",
+  "release_date": "2026-07-30",
+  "commits_since": 224,
+  "during_event": 18
+ },
+ {
+  "repo": "sasmodels",
+  "release": "v1.1.0",
+  "release_date": "2026-07-30",
+  "commits_since": 167,
+  "during_event": 6
+ },
+ {
+  "repo": "sasdata",
+  "release": "v0.12.2",
+  "release_date": "2026-07-30",
+  "commits_since": 14,
+  "during_event": 0
+ }
+]

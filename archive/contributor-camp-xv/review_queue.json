@@ -1,0 +1,83 @@
+[
+ {
+  "pr": "sasmodels#782",
+  "url": "https://github.com/SasView/sasmodels/pull/782",
+  "title": "Add multi_shell_vesicle model",
+  "author": "ursulap",
+  "opened": "Wed 04 Nov 15:28",
+  "hours_waiting": 146.4,
+  "lines": 369
+ },
+ {
+  "pr": "sasview#4206",
+  "url": "https://github.com/SasView/sasview/pull/4206",
+  "title": "Remove pluginmodel.py",
+  "author": "krzywon",
+  "opened": "Sun 08 Nov 10:39",
+  "hours_waiting": 55.2,
+  "lines": 78
+ },
+ {
+  "pr": "sasview#4207",
+  "url": "https://github.com/SasView/sasview/pull/4207",
+  "title": "2735 polydisperse constraints in projects",
+  "author": "gonzalezma",
+  "opened": "Sun 08 Nov 11:06",
+  "hours_waiting": 54.8,
+  "lines": 225
+ },
+ {
+  "pr": "sasmodels#791",
+  "url": "https://github.com/SasView/sasmodels/pull/791",
+  "title": "Apply broad_peak shape_exp to the peak term only",
+  "author": "turneradam",
+  "opened": "Sun 08 Nov 16:10",
+  "hours_waiting": 49.7,
+  "lines": 44
+ },
+ {
+  "pr": "sasmodels#792",
+  "url": "https://github.com/SasView/sasmodels/pull/792",
+  "title": "Core shell bifrustum prism clean",
+  "author": "sara-mokhtari",
+  "opened": "Sun 08 Nov 17:45",
+  "hours_waiting": 48.1,
+  "lines": 1036
+ },
+ {
+  "pr": "sasview#4225",
+  "url": "https://github.com/SasView/sasview/pull/4225",
+  "title": "4223 data operation tool",
+  "author": "Cristian2299",
+  "opened": "Mon 09 Nov 09:32",
+  "hours_waiting": 32.4,
+  "lines": 56
+ },
+ {
+  "pr": "sasdata#270",
+  "url": "https://github.com/SasView/sasdata/pull/270",
+  "title": "fixed incorrect assignment of data type on file load #269",
+  "author": "rozyczko",
+  "opened": "Mon 09 Nov 13:16",
+  "hours_waiting": 28.6,
+  "lines": 190
+ },
+ {
+  "pr": "sasview#4235",
+  "url": "https://github.com/SasView/sasview/pull/4235",
+  "title": "Parse typed values in double precision",
+  "author": "butlerpd",
+  "opened": "Mon 09 Nov 15:58",
+  "hours_waiting": 25.9,
+  "lines": 24
+ },
+ {
+  "pr": "sasview#4236",
+  "url": "https://github.com/SasView/sasview/pull/4236",
+  "title": "Numerical baseline tests for the fit page calculation (1 of 3 for #4216)",
+  "author": "butlerpd",
+  "opened": "Mon 09 Nov 16:06",
+  "hours_waiting": 25.8,
+  "lines": 200
+ }
+]
